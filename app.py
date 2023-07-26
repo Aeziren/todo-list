@@ -1,3 +1,19 @@
+import sqlite3
+
+conection = sqlite3.connect("tasks.db")
+db = conection.cursor()
+
+db.execute("SELECT count(name) FROM sqlite_master WHERE type = 'table' AND name = 'tasks'")
+
+if not db.fetchone()[0]:
+    db.execute("""CREATE TABLE tasks(
+               id INTEGER PRIMARY KEY,
+               objective TEXT NOT NULL,
+               expiry TEXT,
+               state INTEGER DEFAULT 0)
+               """)
+    print("Table 'tasks' Created Sucessfully")
+
 print("=TO DO LIST=")
 while True:
     print("""1. Add Task
