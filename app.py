@@ -1,16 +1,19 @@
 import sqlite3
 
-def view_tasks():
+def view_tasks(op = 0):
     db.execute("SELECT * FROM tasks")
     tasks = db.fetchall()
 
     if not tasks:
         print("To tasks found.")
     else:
-        print(f"N. {'Description':<24} Priority")
-        for n, task in enumerate(tasks):
-            print(f"{n+1}. {task[0]:<24} {task[1]:^8}")
-    input("Press to return to menu.")
+        print(f"ID.  {'Description':<24} {'Priority':<10} State")
+        for task in tasks:
+            print(f"{task[0]:<4} {task[1]:<27} {task[2]:<9} {task[3]}")
+    if not op:
+        input("Press to return to menu.")
+    if op == 3:
+        return input("Choice: ")
 
 
 def add_task():
@@ -23,22 +26,36 @@ def add_task():
         if priority and int(priority) in range(1, 4):
             break
 
-    db.execute("INSERT INTO tasks (objective, priority) VALUES (?, ?)", (task, priority))
+    db.execute("""INSERT INTO tasks (objective, priority)
+               VALUES (?, ?);""", (task, priority))
     connection.commit()
     print(f"Added {task} to tasks!")
+
+
+def mark_task():
+    op = view_tasks(3)
+    db.execute("""UPDATE tasks
+               SET state = 1
+               WHERE id = ?;""", op)
+    connection.commit()
+
 
 
 connection = sqlite3.connect("tasks.db")
 db = connection.cursor()
 
-db.execute("SELECT count(name) FROM sqlite_master WHERE type = 'table' AND name = 'tasks'")
+db.execute("""SELECT count(name)
+           FROM sqlite_master
+           WHERE type = 'table' AND name = 'tasks';""")
 
 if not db.fetchone()[0]:
     db.execute("""CREATE TABLE tasks(
+               id INTEGER PRIMARY KEY AUTOINCREMENT,
                objective TEXT NOT NULL,
                priority INTEGER NOT NULL,
-               state INTEGER DEFAULT 0)
+               state INTEGER DEFAULT 0;)
                """)
+
     print("Table 'tasks' Created Sucessfully")
 
 print("=TO DO LIST=")
@@ -56,7 +73,7 @@ while True:
         case 2:
             add_task()
         case 3:
-            print("Você inseriu 3.")
+            mark_task()
         case 4:
             print("Você inseriu 4.")
         case 5:
