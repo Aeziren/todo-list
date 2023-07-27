@@ -20,7 +20,6 @@ db.execute("SELECT count(name) FROM sqlite_master WHERE type = 'table' AND name 
 
 if not db.fetchone()[0]:
     db.execute("""CREATE TABLE tasks(
-               id INTEGER PRIMARY KEY,
                objective TEXT NOT NULL,
                expiry TEXT,
                state INTEGER DEFAULT 0)
