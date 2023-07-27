@@ -7,9 +7,10 @@ def view_tasks(op = 0):
     if not tasks:
         print("To tasks found.")
     else:
-        print(f"ID.  {'Description':<24} {'Priority':<10} State")
+        print(f"{'TASKS':=^70}")
+        print(f"ID.  {'Description':<44} {'Priority':<10} State")
         for task in tasks:
-            print(f"{task[0]:<4} {task[1]:<27} {task[2]:<9} {task[3]}")
+            print(f"{task[0]:<4} {task[1]:<47} {task[2]:<9} {task[3]}")
     if not op:
         input("Press to return to menu.")
     if op == 3:
@@ -58,8 +59,8 @@ if not db.fetchone()[0]:
 
     print("Table 'tasks' Created Sucessfully")
 
-print("=TO DO LIST=")
 while True:
+    print(f"{'TO DO LIST':=^70}")
     print("""1. View Tasks
 2. Add task
 3. Mark task as done
