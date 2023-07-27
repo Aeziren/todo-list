@@ -1,14 +1,29 @@
 import sqlite3
 
+def view_tasks():
+    db.execute("SELECT * FROM tasks")
+    tasks = db.fetchall()
+
+    if not tasks:
+        print("To tasks found.")
+    else:
+        print(f"N. {'Description':<24} Priority")
+        for n, task in enumerate(tasks):
+            print(f"{n+1}. {task[0]:<24} {task[1]:^8}")
+    input("Press to return to menu.")
+
+
 def add_task():
     while True:
-        task = input("Task Description: ").strip()
+        task = str(input("Task Description: ").strip())
         if task:
             break
+    while True:
+        priority = input("Priority (1-3): ")
+        if priority and int(priority) in range(1, 4):
+            break
 
-    exp = input("Expiry date (optional): ").strip()
-
-    db.execute("INSERT INTO tasks (objective, expiry) VALUES (?, ?)", (task, exp))
+    db.execute("INSERT INTO tasks (objective, priority) VALUES (?, ?)", (task, priority))
     connection.commit()
     print(f"Added {task} to tasks!")
 
@@ -21,7 +36,7 @@ db.execute("SELECT count(name) FROM sqlite_master WHERE type = 'table' AND name 
 if not db.fetchone()[0]:
     db.execute("""CREATE TABLE tasks(
                objective TEXT NOT NULL,
-               expiry TEXT,
+               priority INTEGER NOT NULL,
                state INTEGER DEFAULT 0)
                """)
     print("Table 'tasks' Created Sucessfully")
@@ -37,7 +52,7 @@ while True:
 
     match op:
         case 1:
-            print("Op1")
+            view_tasks()
         case 2:
             add_task()
         case 3:
