@@ -13,7 +13,7 @@ def view_tasks(op = 0):
             print(f"{task[0]:<4} {task[1]:<47} {task[2]:<9} {task[3]}")
     if not op:
         input("Press to return to menu.")
-    if op == 3:
+    if op == 1:
         return input("Choice: ")
 
 
@@ -34,11 +34,20 @@ def add_task():
 
 
 def mark_task():
-    op = view_tasks(3)
+    op = view_tasks(1)
     db.execute("""UPDATE tasks
                SET state = 1
                WHERE id = ?;""", op)
     connection.commit()
+    print("Success!")
+
+
+def remove_task():
+    op = view_tasks(1)
+    db.execute("""DELETE FROM tasks
+               WHERE id = ?""", op)
+    connection.commit()
+    print("Success!")
 
 
 
@@ -76,7 +85,7 @@ while True:
         case 3:
             mark_task()
         case 4:
-            print("Você inseriu 4.")
+            remove_task()
         case 5:
             print("Bye! =D")
             connection.close()
