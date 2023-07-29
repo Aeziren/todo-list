@@ -8,13 +8,16 @@ def view_tasks(op = 0):
         print("To tasks found.")
     else:
         print(f"{'TASKS':=^70}")
-        print(f"ID.  {'Description':<44} {'Priority':<10} State")
+        print(f"""{color_text(f'ID.  {"Description":<44} {"Priority":<10} State', 34)}""")
         for task in tasks:
-            print(f"{task[0]:<4} {task[1]:<47} {task[2]:<9} {task[3]}")
+            if task[3] == 0:
+                print(f"{task[0]:<4} {task[1]:<47} {task[2]:<9} {task[3]}")
+            else:
+                print(f"{task[0]:<4} {color_text(f'{task[1]:<47}', 9)} {task[2]:<9} {task[3]}")
     if not op:
-        input("Press to return to menu.")
+        input(f"{color_text('Press Enter to return to menu.', 33)}")
     if op == 1:
-        return input("Choice: ")
+        return input(f"{color_text('Choice: ', 33)}")
 
 
 def add_task():
@@ -30,7 +33,7 @@ def add_task():
     db.execute("""INSERT INTO tasks (objective, priority)
                VALUES (?, ?);""", (task, priority))
     connection.commit()
-    print(f"Added {task} to tasks!")
+    print(f"{color_text(f'Added {task} to tasks!', 32)}")
 
 
 def mark_task():
@@ -39,7 +42,7 @@ def mark_task():
                SET state = 1
                WHERE id = ?;""", op)
     connection.commit()
-    print("Success!")
+    print(f"{color_text('Success!', 32)}")
 
 
 def remove_task():
@@ -47,8 +50,11 @@ def remove_task():
     db.execute("""DELETE FROM tasks
                WHERE id = ?""", op)
     connection.commit()
-    print("Success!")
+    print(f"{color_text('Success!', 32)}")
 
+
+def color_text(text, color_code):
+    return f"\033[{color_code}m{text}\033[0m"
 
 
 connection = sqlite3.connect("tasks.db")
@@ -66,16 +72,16 @@ if not db.fetchone()[0]:
                state INTEGER DEFAULT 0;)
                """)
 
-    print("Table 'tasks' Created Sucessfully")
+    print(f"{color_text('Table created successfully!', 32)}")
 
 while True:
     print(f"{'TO DO LIST':=^70}")
-    print("""1. View Tasks
-2. Add task
-3. Mark task as done
-4. Remove task
-5. Quit""")
-    op = int(input("Option: "))
+    print(f"""{color_text('1.', 33)} View Tasks
+{color_text('2.', 33)} Add task
+{color_text('3.', 33)} Mark task as done
+{color_text('4.', 33)} Remove task
+{color_text('5.', 33)} Quit""")
+    op = int(input(f"{color_text('Option: ', 33)}"))
 
     match op:
         case 1:
@@ -91,4 +97,4 @@ while True:
             connection.close()
             break
         case _:
-            print("Invalid Option!\n")
+            print(f"{color_text('Invalid Option!', 31)}")
