@@ -101,11 +101,11 @@ FROM sqlite_master
 WHERE type = 'table' AND name = 'tasks';"""
 
 # Query used to create database
-creation_query = ("""CREATE TABLE tasks(
-id INTEGER PRIMARY KEY AUTOINCREMENT
-objective TEXT NOT NULL
-priority INTEGER NOT NULL
-state INTEGER DEFAULT 0;)""")
+creation_query = ("""CREATE TABLE tasks (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+objective TEXT NOT NULL,
+priority INTEGER NOT NULL,
+state INTEGER DEFAULT 0);""")
 
 # Verify for the existence of database, if it does not exist, create a new one.
 db.execute(verify_query)
