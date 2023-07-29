@@ -1,12 +1,17 @@
+# Imports
 import sqlite3
 
+# Functions:
+# Function to view tasks, ask the user for input if triggered
 def view_tasks(op = 0):
+    # Search on database
     db.execute("SELECT * FROM tasks")
     tasks = db.fetchall()
 
     if not tasks:
         print("To tasks found.")
     else:
+        # Show tasks on CLI
         print(f"{'TASKS':=^70}")
         print(f"""{color_text(f'ID.  {"Description":<44} {"Priority":<10} State', 34)}""")
         for task in tasks:
@@ -20,7 +25,9 @@ def view_tasks(op = 0):
         return input(f"{color_text('Choice: ', 33)}")
 
 
+# Function to add tasks
 def add_task():
+    # Ask user for input of description and priority
     while True:
         task = str(input("Task Description: ").strip())
         if task:
@@ -30,36 +37,55 @@ def add_task():
         if priority and int(priority) in range(1, 4):
             break
 
+    # Insert task into database and commit changes.
     db.execute("""INSERT INTO tasks (objective, priority)
                VALUES (?, ?);""", (task, priority))
     connection.commit()
+
+    # Feedback
     print(f"{color_text(f'Added {task} to tasks!', 32)}")
 
 
+# Function to mark a task a done
 def mark_task():
+    # Make a call to the function of viewing tasks, triggering input part of it
     op = view_tasks(1)
+
+    # Insert value into database and commit changes.
     db.execute("""UPDATE tasks
                SET state = 1
                WHERE id = ?;""", op)
     connection.commit()
+
+    # Feedback
     print(f"{color_text('Success!', 32)}")
 
 
+# Function to remove task from database, works simmilary as mark task as done.
 def remove_task():
+    # Make a call to the function of viewing tasks, triggering input part of it
     op = view_tasks(1)
+
+    # Insert value into database and commit changes.
     db.execute("""DELETE FROM tasks
                WHERE id = ?""", op)
     connection.commit()
+
+    # Feedback
     print(f"{color_text('Success!', 32)}")
 
 
+# Function used in all code to color the CLI, simply return a f-string
 def color_text(text, color_code):
     return f"\033[{color_code}m{text}\033[0m"
 
+# End of function section
 
+# Initialize database
 connection = sqlite3.connect("tasks.db")
 db = connection.cursor()
 
+# Verify for the existence of database, if it does not exist, create a new one.
 db.execute("""SELECT count(name)
            FROM sqlite_master
            WHERE type = 'table' AND name = 'tasks';""")
@@ -72,8 +98,10 @@ if not db.fetchone()[0]:
                state INTEGER DEFAULT 0;)
                """)
 
+    # Feedback user about creating of database
     print(f"{color_text('Table created successfully!', 32)}")
 
+# Menu
 while True:
     print(f"{'TO DO LIST':=^70}")
     print(f"""{color_text('1.', 33)} View Tasks
@@ -83,6 +111,7 @@ while True:
 {color_text('5.', 33)} Quit""")
     op = int(input(f"{color_text('Option: ', 33)}"))
 
+    # Switch
     match op:
         case 1:
             view_tasks()
@@ -94,6 +123,7 @@ while True:
             remove_task()
         case 5:
             print("Bye! =D")
+            # Close connection to database
             connection.close()
             break
         case _:
