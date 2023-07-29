@@ -13,16 +13,18 @@ def view_tasks(op = 0):
     else:
         # Show tasks on CLI
         print(f"{'TASKS':=^70}")
-        print(f"""{color_text(f'ID.  {"Description":<44} {"Priority":<10} State', 34)}""")
+        print(f"""{color_text(f'ID.  {"Description":<44} {"Priority":<10}', 34)}""")
         for task in tasks:
             if task[3] == 0:
-                print(f"{task[0]:<4} {task[1]:<47} {task[2]:<9} {task[3]}")
+                print(f"{task[0]:<4} {task[1]:<47} {task[2]:<9}")
             else:
-                print(f"{task[0]:<4} {color_text(f'{task[1]:<47}', 9)} {task[2]:<9} {task[3]}")
+                print(f"{task[0]:<4} {color_text(f'{task[1]:<47}', 9)} {task[2]:<9}")
     if not op:
         input(f"{color_text('Press Enter to return to menu.', 33)}")
     if op == 1:
-        return input(f"{color_text('Choice: ', 33)}")
+        choice = input(f"{color_text('Choice: ', 33)}")
+        print(choice)
+        return choice
 
 
 # Function to add tasks
@@ -37,9 +39,12 @@ def add_task():
         if priority and int(priority) in range(1, 4):
             break
 
+    # Create query
+    query = """INSERT INTO tasks (objective, priority)
+    VALUES (?, ?);"""
+
     # Insert task into database and commit changes.
-    db.execute("""INSERT INTO tasks (objective, priority)
-               VALUES (?, ?);""", (task, priority))
+    db.execute(query, (task, priority))
     connection.commit()
 
     # Feedback
@@ -51,10 +56,12 @@ def mark_task():
     # Make a call to the function of viewing tasks, triggering input part of it
     op = view_tasks(1)
 
+    # Create query
+    query = """UPDATE tasks
+    SET state = 1 WHERE id = (?)"""
+
     # Insert value into database and commit changes.
-    db.execute("""UPDATE tasks
-               SET state = 1
-               WHERE id = ?;""", op)
+    db.execute(query, (op,))
     connection.commit()
 
     # Feedback
@@ -66,9 +73,12 @@ def remove_task():
     # Make a call to the function of viewing tasks, triggering input part of it
     op = view_tasks(1)
 
+    # Create query
+    query = """DELETE FROM tasks
+    WHERE id = ?"""
+
     # Insert value into database and commit changes.
-    db.execute("""DELETE FROM tasks
-               WHERE id = ?""", op)
+    db.execute(query, (op, ))
     connection.commit()
 
     # Feedback
@@ -85,18 +95,23 @@ def color_text(text, color_code):
 connection = sqlite3.connect("tasks.db")
 db = connection.cursor()
 
+# Query used for verification of database existence
+verify_query = """SELECT count(name)
+FROM sqlite_master
+WHERE type = 'table' AND name = 'tasks';"""
+
+# Query used to create database
+creation_query = ("""CREATE TABLE tasks(
+id INTEGER PRIMARY KEY AUTOINCREMENT
+objective TEXT NOT NULL
+priority INTEGER NOT NULL
+state INTEGER DEFAULT 0;)""")
+
 # Verify for the existence of database, if it does not exist, create a new one.
-db.execute("""SELECT count(name)
-           FROM sqlite_master
-           WHERE type = 'table' AND name = 'tasks';""")
+db.execute(verify_query)
 
 if not db.fetchone()[0]:
-    db.execute("""CREATE TABLE tasks(
-               id INTEGER PRIMARY KEY AUTOINCREMENT,
-               objective TEXT NOT NULL,
-               priority INTEGER NOT NULL,
-               state INTEGER DEFAULT 0;)
-               """)
+    db.execute(creation_query)
 
     # Feedback user about creating of database
     print(f"{color_text('Table created successfully!', 32)}")
